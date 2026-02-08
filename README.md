@@ -1,115 +1,119 @@
 # 📊 Education Indicators and Future Life Expectancy
 
-## Overview
-This project investigates whether education-related indicators are associated with changes in life expectancy over time.  
-The focus is on building a **clean, reproducible country–year panel dataset** by integrating multiple education and health datasets, followed by exploratory analysis and preparation for future predictive modeling.
+## 1. Problem Statement
+Life expectancy is a slow-moving but critical indicator of societal well-being.  
+This project investigates whether **education-related indicators**—such as enrollment rates and education expenditure—are associated with **future changes in life expectancy**.
 
-The project emphasizes **data preparation, integration, and temporal reasoning**, with machine learning planned as a later extension.
+The central question is:
 
----
+> *Given a country’s education indicators and current life expectancy at year t, can we meaningfully explain or predict life expectancy five years later?*
 
-## Problem Statement
-Can education indicators observed at a given point in time help explain or predict improvements in life expectancy in the future?
-
-To answer this, the project constructs a dataset that links:
-- education enrollment and expenditure at year *t*
-- life expectancy outcomes at later years
-
-This requires careful handling of missing data, inconsistent coverage, and time-based alignment across datasets.
+Rather than focusing only on model accuracy, the project emphasizes **data integration, temporal reasoning, and honest interpretation**.
 
 ---
 
-## Data Sources
-The project uses publicly available datasets containing:
+## 2. Data Sources
+The analysis uses multiple publicly available datasets containing:
+
 - Life expectancy (both sexes)
 - Primary, secondary, and tertiary education enrollment
-- Education expenditure (as % of GDP and total expenditure)
+- Education expenditure (percentage of GDP and total expenditure)
 
-Each dataset is provided separately and differs in country and year coverage.
+Each dataset was originally provided as a separate CSV file with **different country coverage, year ranges, and reporting standards**, requiring careful preprocessing.
 
 ---
 
-## Data Preparation & Integration
-
-### 1. Data Cleaning (Python / pandas)
+## 3. Data Preparation & Cleaning (Python / pandas)
 Each dataset was cleaned individually using pandas:
+
 - Standardized column names
 - Converted year and value columns to numeric types
 - Removed irrelevant or constant columns
-- Explicitly handled missing or malformed values
+- Explicitly handled missing values and inconsistencies
+- Normalized country names where possible
 
-Cleaned datasets were saved for reproducibility.
-
----
-
-### 2. Data Integration (SQLite / SQL)
-Cleaned datasets were loaded into an SQLite database.
-
-SQL was used to:
-- Integrate multiple datasets using `(Country, Year)` as keys
-- Construct a **strict panel dataset** containing only country–year observations with complete feature availability
-- Engineer a **future target variable** by linking life expectancy at year *t* to life expectancy at year *t + 5*
-
-This separation ensures that data construction is transparent, reproducible, and independent of downstream analysis.
+The goal at this stage was to ensure that each dataset could be reliably joined on a `(Country, Year)` basis.
 
 ---
 
-## Exploratory Data Analysis (EDA)
-Exploratory analysis was conducted on the final panel dataset used for modeling.
+## 4. Data Integration & Feature Engineering (SQLite / SQL)
+Cleaned datasets were loaded into an SQLite database to ensure **reproducibility and transparency** of data integration.
+
+Using SQL:
+- Multiple datasets were joined using `(Country, Year)` as composite keys
+- A **strict panel dataset** was constructed, retaining only country–year observations with complete feature availability
+- A **future target variable** was engineered by aligning life expectancy at year *t* with life expectancy at year *t + 5*
+
+This resulted in a modeling-ready dataset where:
+- Inputs represent conditions at time *t*
+- The target represents an outcome observed in the future
+
+---
+
+## 5. Exploratory Data Analysis (EDA)
+Exploratory analysis was conducted **only on the strict panel dataset** to maintain consistency between descriptive analysis and modeling.
 
 Key EDA steps included:
 - Visualizing life expectancy trends over time for countries with complete data
-- Examining relationships between education indicators and life expectancy using scatter plots
-- Identifying data availability limitations across countries and years
+- Examining relationships between education indicators and life expectancy
+- Identifying data availability constraints across countries and years
 
-The analysis confirms:
-- a general upward trend in life expectancy over time
-- a positive association between education indicators and life expectancy
+### EDA Observations
+- Life expectancy generally shows a steady upward trend over time
+- Education indicators are positively associated with life expectancy
+- Data coverage limitations significantly affect which countries can be analyzed jointly
 
-These findings motivate the subsequent use of education variables for predictive modeling.
-
----
-
-## Project Structure
-├── data/
-│ ├── raw/ # Original datasets
-│ ├── cleaned/ # Cleaned CSV files
-│ └── education_life.db # SQLite database
-├── sql/
-│ ├── build_panel.sql
-│ └── build_model_data.sql
-├── notebooks/
-│ ├── data_cleaning.ipynb
-├── output/
-│ └──Cleaned datasets 
-└── README.md
-
-
+EDA was used to **validate the modeling approach**, not to overclaim causal relationships.
 
 ---
 
-## Current Status
-At this stage, the project provides:
-- A clean, integrated country–year panel dataset
-- A time-shifted life expectancy target suitable for supervised learning
-- Exploratory insights validating the modeling approach
+## 6. Predictive Modeling (Baseline)
+A baseline supervised learning model was built to predict **life expectancy at year t + 5**.
+
+### Modeling Approach
+- Features: education indicators + current life expectancy at year *t*
+- Target: life expectancy at year *t + 5*
+- Time-based train/test split (training on earlier years, testing on later years)
+- Ridge Regression used as a transparent, interpretable baseline model
+- Features standardized prior to modeling
+
+### Evaluation
+Model performance was evaluated using **Mean Absolute Error (MAE)** on future (held-out) years to avoid temporal leakage.
 
 ---
 
-## Next Steps
-Planned extensions include:
-- Training baseline machine learning models (e.g. Ridge Regression, Random Forest)
-- Evaluating predictive performance using time-based train/test splits
-- Interpreting feature contributions to future life expectancy changes
+## 7. Model Interpretation & Findings
+Inspection of model coefficients revealed that:
+
+- **Current life expectancy** is by far the strongest predictor of future life expectancy
+- Education indicators contribute **marginally** once baseline life expectancy is accounted for
+- This suggests that education effects are largely embedded in existing health conditions rather than driving short-term changes over a five-year horizon
+
+These results highlight the **inertia of life expectancy** and the difficulty of short-term forecasting using structural indicators alone.
 
 ---
 
-## Technologies Used
-- Python (pandas, matplotlib)
+## 8. Key Takeaways
+- Building a clean, temporally consistent dataset is often more challenging—and more important—than model selection
+- Strong baseline predictors can dominate more complex socioeconomic variables
+- Honest modeling reveals limitations of data and problem scope rather than masking them
+- Time-aware validation is essential for any forecasting task
+
+---
+
+## 9. Project Status
+This project represents a **completed end-to-end data science workflow**:
+- Data cleaning
+- Data integration
+- Exploratory analysis
+- Baseline predictive modeling
+- Interpretation and documentation
+
+Future extensions (e.g. alternative targets, feature engineering, or non-linear models) can be added as independent iterations without altering the core pipeline.
+
+---
+
+## 10. Technologies Used
+- Python (pandas, matplotlib, scikit-learn)
 - SQLite (SQL)
 - Jupyter Notebook
-
----
-
-## Notes
-Exploratory analysis was intentionally conducted on the same strict dataset used for modeling to ensure consistency between descriptive insights and predictive results.
