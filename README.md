@@ -117,3 +117,9 @@ Future extensions (e.g. alternative targets, feature engineering, or non-linear 
 - Python (pandas, matplotlib, scikit-learn)
 - SQLite (SQL)
 - Jupyter Notebook
+
+
+
+This project investigated whether education indicators help predict life expectancy five years into the future. Using a time-aware baseline regression model, the results show that while education variables are associated with life expectancy levels, their incremental predictive contribution over a short five-year horizon is limited once current life expectancy is accounted for.
+
+These findings suggest that life expectancy exhibits strong temporal persistence, and that structural factors such as education are likely reflected in existing health conditions rather than driving substantial short-term changes.
